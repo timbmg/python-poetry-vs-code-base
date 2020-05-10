@@ -1,19 +1,24 @@
 #!/bin/bash
 
 # ----- Project Name
-read -p "Project Name [project]: " project_name
-project_name=${project_name:-project}
-sed "/^\[tool.poetry\]$/,/^\[/ s/^name = \"python-poetry-vs-code-base\"/name = \"${project_name}\"/" pyproject.toml > pyproject.toml
+project_default="project"
+read -p "Project Name [${project_default}]: " project_name
+project_name=${project_name:-$project_default}
+cp pyproject.toml pyproject.tmp
+sed "/^\[tool.poetry\]$/,/^\[/ s/^name = \"python-poetry-vs-code-base\"/name = \"${project_name}\"/" pyproject.tmp > pyproject.toml
+rm pyproject.tmp
+
 
 mkdir -p $project_name
 touch ${project_name}/__init__.py
 
 # ----- Author
-author=$(dscl . -read "/Users/$(who am i | awk '{print $1}')" RealName | sed -n 's/^ //g;2p')
-read -p "Authors [\"${author}\"]: " author
-authors=${author:-$(author)}
-sed "/^\[tool.poetry\]$/,/^\[/ s/^authors = \[\"\"\]/authors = \[\"${author}\"\]/" pyproject.toml > pyproject.toml
-
+author_default=$(dscl . -read "/Users/$(who am i | awk '{print $1}')" RealName | sed -n 's/^ //g;2p')
+read -p "Authors [\"${author_default}\"]: " author
+author=${author:-$author_default}
+cp pyproject.toml pyproject.tmp
+sed "/^\[tool.poetry\]$/,/^\[/ s/^authors = \[\"\"\]/authors = \[\"${author}\"\]/" pyproject.tmp > pyproject.toml
+rm pyproject.tmp
 # ----- Python Version
 while true; do
     py_version_default="3.8.2"
@@ -26,7 +31,9 @@ while true; do
         echo "Using Python ${py_version}"
         pyenv install -s ${py_version}
         pyenv local ${py_version}
-        sed "/^\[tool.poetry.dependencies\]$/,/^\[/ s/^python = \"^3.8.0\"/python = \"^${py_version}\"/" pyproject.toml > pyproject.toml
+        cp pyproject.toml pyproject.tmp
+        sed "/^\[tool.poetry.dependencies\]$/,/^\[/ s/^python = \"^3.7\"/python = \"^${py_version}\"/" pyproject.tmp > pyproject.toml
+        rm pyproject.tmp
         break
     elif [[ $num_versions_found -ge 2 ]]; then
         echo "Python version ${py_version} is ambigious. Found: $(pyenv install --list | grep $escaped_py_version)"
@@ -36,15 +43,14 @@ while true; do
 done
 
 # ----- Dependency Installtion
-poetry update
 poetry install
+poetry update
 
 # ----- Clean Up
 read -p "Delete Setup Script? [Y/n]" -n 1 deletion_decision
 deletion_decision=${deletion_decision:-y}
 if [[ $deletion_decision = ^[Yy]$ ]]
     then
-        # rm setup.sh
-        echo "rm"
+        rm setup.sh
 fi
 exit
