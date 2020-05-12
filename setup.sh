@@ -8,7 +8,6 @@ cp pyproject.toml pyproject.tmp
 sed "/^\[tool.poetry\]$/,/^\[/ s/^name = \"python-poetry-vs-code-base\"/name = \"${project_name}\"/" pyproject.tmp > pyproject.toml
 rm pyproject.tmp
 
-
 mkdir -p $project_name
 touch ${project_name}/__init__.py
 
@@ -19,6 +18,7 @@ author=${author:-$author_default}
 cp pyproject.toml pyproject.tmp
 sed "/^\[tool.poetry\]$/,/^\[/ s/^authors = \[\"\"\]/authors = \[\"${author}\"\]/" pyproject.tmp > pyproject.toml
 rm pyproject.tmp
+
 # ----- Python Version
 while true; do
     py_version_default="3.8.2"
@@ -45,6 +45,13 @@ done
 # ----- Dependency Installtion
 poetry install
 poetry update
+
+# ----- Set Python Path in .vscode
+venv=$(poetry env info | grep "Path:*" | sed "s/^Path:[ \t]*//")
+echo $venv
+cp .vscode/settings.json .vscode/settings.json.tmp
+sed "s/\"python.pythonPath\": \"python\"/\"python.pythonPath\": \"${venv}\"/" .vscode/settings.json.tmp > .vscode/settings.json
+rm .vscode/settings.json.tmp
 
 # ----- Clean Up
 read -p "Delete Setup Script? [Y/n]" -n 1 deletion_decision
