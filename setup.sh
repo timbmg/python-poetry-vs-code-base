@@ -48,9 +48,9 @@ poetry update
 
 # ----- Set Python Path in .vscode
 venv=$(poetry env info | grep "Path:*" | sed "s/^Path:[ \t]*//")
-echo $venv
+escaped_venv=$(echo $venv | sed -e 's/[\/&]/\\&/g')
 cp .vscode/settings.json .vscode/settings.json.tmp
-sed "s/\"python.pythonPath\": \"python\"/\"python.pythonPath\": \"${venv}\"/" .vscode/settings.json.tmp > .vscode/settings.json
+sed "s/\"python.pythonPath\": \"python\"/\"python.pythonPath\": \"${escaped_venv}\"/" .vscode/settings.json.tmp > .vscode/settings.json
 rm .vscode/settings.json.tmp
 
 # ----- Clean Up
