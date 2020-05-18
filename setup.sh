@@ -4,6 +4,7 @@
 project_default="project"
 read -p "Project Name [${project_default}]: " project_name
 project_name=${project_name:-$project_default}
+echo "# ${project_name}" > README.md
 cp pyproject.toml pyproject.tmp
 sed "/^\[tool.poetry\]$/,/^\[/ s/^name = \"python-poetry-vs-code-base\"/name = \"${project_name}\"/" pyproject.tmp > pyproject.toml
 rm pyproject.tmp
