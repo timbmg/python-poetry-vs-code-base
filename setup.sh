@@ -54,10 +54,12 @@ sed "s/\"python.pythonPath\": \"python\"/\"python.pythonPath\": \"${escaped_venv
 rm .vscode/settings.json.tmp
 
 # ----- Clean Up
+git rm --cached -r .vscode
+
 read -p "Delete Setup Script? [Y/n]" -n 1 deletion_decision
 deletion_decision=${deletion_decision:-y}
-if [[ $deletion_decision = ^[Yy]$ ]]
-    then
-        rm setup.sh
+if [[ $deletion_decision = ^[Yy]$ ]]; then
+    git rm --cached setup.sh
+    rm setup.sh
 fi
 exit
